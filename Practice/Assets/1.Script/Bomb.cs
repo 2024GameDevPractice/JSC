@@ -31,11 +31,7 @@ public class Bomb : MonoBehaviour
         {
             if(col.gameObject.layer == 8)
             {
-                col.GetComponent<EnemyController>().HP -= 70;
-                if(col.GetComponent<EnemyController>().HP <= 0)
-                {
-                    Destroy(col.gameObject);
-                }
+                col.GetComponent<EnemyController>().HP -= 500;
             }
 
             if (col.gameObject.layer == 10)
@@ -45,7 +41,7 @@ public class Bomb : MonoBehaviour
 
             if (col.gameObject.layer == 11)
             {
-                col.GetComponent<Asternoid>().hp -= 70;
+                col.GetComponent<Asternoid>().hp -= 500;
                 if (col.GetComponent<Asternoid>().hp <= 0)
                 {
                     Destroy(col.gameObject);

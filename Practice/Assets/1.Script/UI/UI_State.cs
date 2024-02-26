@@ -6,13 +6,19 @@ using UnityEngine.UI;
 
 public class UI_State : MonoBehaviour
 {
-    PlayerController player;
+    [SerializeField] GameObject deadReport;
+
+    public PlayerController player;
     public TextMeshProUGUI hpText;
 
     public Image fuel;
     float fuelcurTime;
 
+    public int repairMaxCnt;
+    public int bombMaxCnt;
+    [HideInInspector]
     public int repairCnt;
+    [HideInInspector]
     public int bombCnt;
     public TextMeshProUGUI R_CText;
     public TextMeshProUGUI B_CText;
@@ -20,10 +26,15 @@ public class UI_State : MonoBehaviour
     public Image bombImage;
     public GameObject bomb;
 
-    float bombCurTime;
-    float repairCurTime;
+    public float bombCurTime;
+    public float repairCurTime;
+
+    public TextMeshProUGUI score;
     void Start()
     {
+        SetScore();
+        repairCnt = repairMaxCnt;
+        bombCnt = bombMaxCnt;
         R_CText.text = $"{repairCnt}";
         B_CText.text = $"{bombCnt}";
         player = Manager.Instance.player.GetComponent<PlayerController>();
@@ -33,11 +44,13 @@ public class UI_State : MonoBehaviour
     void Update()
     {
         SetFuel();
-
+        SetScore();
         if (repairCnt != 0)
         {
             if (repairCurTime >= 10)
             {
+                repairImage.fillAmount = 1;
+                repairImage.color = Color.white;
                 if (Input.GetKeyDown(KeyCode.C))
                 {
                     Repair();
@@ -45,17 +58,20 @@ public class UI_State : MonoBehaviour
             }
             else
             {
+                if (Input.GetKeyDown(KeyCode.C))
+                {
+                    GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("Sound/stop"));
+                }
                 repairCurTime += Time.deltaTime;
                 repairImage.fillAmount = repairCurTime / 10;
-
-                if (repairCurTime >= 10)
-                    repairImage.color = Color.white;
             }
         }
         if (bombCnt != 0)
         {
             if (bombCurTime >= 10)
             {
+                bombImage.fillAmount = 1;
+                    bombImage.color = Color.white;
                 if (Input.GetKeyDown(KeyCode.V))
                 {
                     Bomb();
@@ -63,12 +79,12 @@ public class UI_State : MonoBehaviour
             }
             else
             {
-
+                if (Input.GetKeyDown(KeyCode.V))
+                {
+                    GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("Sound/stop"));
+                }
                 bombCurTime += Time.deltaTime;
                 bombImage.fillAmount = bombCurTime / 10;
-
-                if (bombCurTime >= 10)
-                    bombImage.color = Color.white;
             }
         }
     }
@@ -84,6 +100,11 @@ public class UI_State : MonoBehaviour
         {
             fuelcurTime = 0;
             fuel.fillAmount -= 0.005f;
+            if(fuel.fillAmount <= 0)
+            {
+                Instantiate(deadReport);
+                Manager.Instance.player.GetComponent<PlayerController>().enabled = false;
+            }
         }
         else
             fuelcurTime += Time.deltaTime;
@@ -120,5 +141,10 @@ public class UI_State : MonoBehaviour
         {
             bombImage.fillAmount = 1;
         }
+    }
+
+    void SetScore()
+    {
+        score.text = $"Score : {Manager.Instance.score}";
     }
 }

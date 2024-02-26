@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
-using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Manager : MonoBehaviour
 {
@@ -12,6 +12,8 @@ public class Manager : MonoBehaviour
     void Awake()
     {
         Init();
+        level = 1;
+        SetRank();
     }
 
     private void Init()
@@ -28,19 +30,70 @@ public class Manager : MonoBehaviour
             DontDestroyOnLoad(go);
             _instance = go.GetComponent<Manager>();
         }
+    }
 
-        if(player == null)
+    private void Update()
+    {
+        if (playing)
         {
-            GameObject go = FindObjectOfType<PlayerController>().gameObject;
-            if(go == null)
-            {
-                go = Resources.Load<GameObject>("Prefabs/Player");
-                player = Instantiate(go);
-                return;
-            }
-            player = go;
+            playTime += Time.deltaTime;
         }
     }
 
+    public class Rank
+    {
+        public int score;
+        public string name;
+    }
+
+    public List<Rank> ranks = new List<Rank>();
+    public void SetRank()
+    {
+        if (ranks.Count == 0)
+        {
+            AddRank();
+            AddRank();
+            AddRank();
+        }
+
+        for(int i=2; i >= 0; i--)
+        {
+            if (ranks[i].score < score)
+            {
+                int s = ranks[i].score;
+                string n = ranks[i].name;
+                ranks[i].score = score;
+                ranks[i].name = name;
+
+                if(i != 2)
+                {
+                    ranks[i + 1].score = s;
+                    ranks[i+1].name = n;
+                }
+            }
+            else
+                break;
+        }
+    }
+
+    void AddRank()
+    {
+        Rank rank = new Rank();
+        ranks.Add(rank);
+        rank.score = 0;
+        rank.name = "Player";
+    }
+
     public GameObject player;
+
+    public int stage;
+
+    public int score;
+    public int level;
+
+    public float playTime;
+
+    public bool playing;
+
+    public string name;
 }
